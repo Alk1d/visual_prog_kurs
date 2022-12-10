@@ -50,17 +50,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     //tableWidget
     tableWidget = new QTableWidget;
-    int row = 3;
+    int row = 0;
     int column = 6;
     QStringList headers;
     headers << "Name" << "Surname" << "Last name" <<"Birth date" <<"Height" << "Weight";
     tableWidget->setRowCount(row);
     tableWidget->setColumnCount(column);
     tableWidget->setHorizontalHeaderLabels(headers);
-    tableWidget->insertRow(tableWidget->rowCount());
-    tableWidget->setItem(0, 0, new QTableWidgetItem("first row, first column"));
 
 
+    //buttons
     admitButton = new QPushButton(tr("Add"));
     deleteButton = new QPushButton(tr("Delete selected row"));
 
@@ -74,7 +73,6 @@ MainWindow::MainWindow(QWidget *parent)
     Widget->setLayout(widgetLayout);
 
     //connectors
-   // connect(nameLineEdit, &QLineEdit::textEdited, this, &MainWindow::name_textChanged);
     connect(admitButton, &QPushButton::clicked, this, &MainWindow::on_admitButtonClicked);
     connect(deleteButton, &QPushButton::clicked, this, &MainWindow::on_deleteButtonClicked);
     connect(birthdateLineEdit, &QLineEdit::editingFinished, this, &MainWindow::birthdaydate_clicked);
@@ -88,27 +86,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-/*void MainWindow::name_textChanged(const QString &text)
-{
 
-    //tableWidget->setItem(1,0,new QTableWidgetItem (nameLineEdit->text()) );
-
-}
-*/
 void MainWindow::on_admitButtonClicked(int row_counter)
 {
 
-
+    row_counter = tableWidget->rowCount();
     tableWidget->insertRow(tableWidget->rowCount());
-
     tableWidget->setItem(row_counter,0,new QTableWidgetItem (nameLineEdit->text()) );
     tableWidget->setItem(row_counter,1,new QTableWidgetItem (surnameLineEdit->text()) );
     tableWidget->setItem(row_counter,2,new QTableWidgetItem (lastnameLineEdit->text()) );
     tableWidget->setItem(row_counter,3,new QTableWidgetItem (birthdateLineEdit->text()) );
     tableWidget->setItem(row_counter,4,new QTableWidgetItem (heightLineEdit->text()) );
     tableWidget->setItem(row_counter,5,new QTableWidgetItem (weightLineEdit->text()) );
-    // tableWidget->setItem(0, 0, nameLineEdit->text());
-    row_counter++;
+
 }
 
 void MainWindow::on_deleteButtonClicked()

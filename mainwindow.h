@@ -44,7 +44,6 @@ private:
     QGridLayout *widgetLayout;
 
 public slots:
-    //void name_textChanged(const QString &text);
     void on_admitButtonClicked(int row_counter);
     void on_deleteButtonClicked();
     void birthdaydate_clicked();
