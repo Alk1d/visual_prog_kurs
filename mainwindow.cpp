@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     Widget = new QWidget;
     setCentralWidget(Widget);
 
+    //Widget overall layout
     nameLineEdit = new QLineEdit;
     nameLineEdit->setPlaceholderText("Name");
     surnameLineEdit = new QLineEdit;
@@ -47,9 +48,9 @@ MainWindow::MainWindow(QWidget *parent)
     parametresLayout->addWidget(weightLineEdit, 2, 0);
     parametresGroupbox->setLayout(parametresLayout);
 
-
+    //tableWidget
     tableWidget = new QTableWidget;
-    int row = 0;
+    int row = 3;
     int column = 6;
     QStringList headers;
     headers << "Name" << "Surname" << "Last name" <<"Birth date" <<"Height" << "Weight";
@@ -63,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     admitButton = new QPushButton(tr("Add"));
     deleteButton = new QPushButton(tr("Delete selected row"));
 
-
+    //GridLayout for widget
     widgetLayout = new QGridLayout;
     widgetLayout->addWidget(fullnameGroupbox, 0, 0);
     widgetLayout->addWidget(parametresGroupbox, 0, 1);
@@ -72,10 +73,11 @@ MainWindow::MainWindow(QWidget *parent)
     widgetLayout->addWidget(tableWidget, 2, 0, 1, 2);
     Widget->setLayout(widgetLayout);
 
-
-    connect(nameLineEdit, &QLineEdit::textEdited, this, &MainWindow::name_textChanged);
+    //connectors
+   // connect(nameLineEdit, &QLineEdit::textEdited, this, &MainWindow::name_textChanged);
     connect(admitButton, &QPushButton::clicked, this, &MainWindow::on_admitButtonClicked);
     connect(deleteButton, &QPushButton::clicked, this, &MainWindow::on_deleteButtonClicked);
+    connect(birthdateLineEdit, &QLineEdit::editingFinished, this, &MainWindow::birthdaydate_clicked);
 
 
 
@@ -86,21 +88,36 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::name_textChanged(const QString &text)
+/*void MainWindow::name_textChanged(const QString &text)
 {
+
+    //tableWidget->setItem(1,0,new QTableWidgetItem (nameLineEdit->text()) );
 
 }
-
-void MainWindow::on_admitButtonClicked()
+*/
+void MainWindow::on_admitButtonClicked(int row_counter)
 {
 
-    qDebug() << nameLineEdit->text();
+
     tableWidget->insertRow(tableWidget->rowCount());
+
+    tableWidget->setItem(row_counter,0,new QTableWidgetItem (nameLineEdit->text()) );
+    tableWidget->setItem(row_counter,1,new QTableWidgetItem (surnameLineEdit->text()) );
+    tableWidget->setItem(row_counter,2,new QTableWidgetItem (lastnameLineEdit->text()) );
+    tableWidget->setItem(row_counter,3,new QTableWidgetItem (birthdateLineEdit->text()) );
+    tableWidget->setItem(row_counter,4,new QTableWidgetItem (heightLineEdit->text()) );
+    tableWidget->setItem(row_counter,5,new QTableWidgetItem (weightLineEdit->text()) );
     // tableWidget->setItem(0, 0, nameLineEdit->text());
+    row_counter++;
 }
 
 void MainWindow::on_deleteButtonClicked()
 {
     tableWidget->removeRow(tableWidget->currentRow());
+}
+
+void MainWindow::birthdaydate_clicked()
+{
+    birthdateLineEdit->setInputMask("00.00.0000");
 }
 
