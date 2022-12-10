@@ -99,6 +99,7 @@ void MainWindow::on_admitButtonClicked(int row_counter)
     tableWidget->setItem(row_counter,4,new QTableWidgetItem (heightLineEdit->text()) );
     tableWidget->setItem(row_counter,5,new QTableWidgetItem (weightLineEdit->text()) );
 
+    tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 void MainWindow::on_deleteButtonClicked()
