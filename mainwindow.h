@@ -9,6 +9,9 @@
 #include <QLayout>
 #include <QGroupBox>
 #include <QGridLayout>
+#include <QAction>
+#include <QLabel>
+#include <QMenuBar>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -33,6 +36,13 @@ private:
     QLineEdit *heightLineEdit;
     QLineEdit *weightLineEdit;
 
+    QLabel *nameLabel;
+    QLabel *surnameLabel;
+    QLabel *lastnameLabel;
+    QLabel *birthdateLabel;
+    QLabel *heightLabel;
+    QLabel *weightLabel;
+
     QPushButton *admitButton;
     QPushButton *deleteButton;
 
@@ -43,9 +53,18 @@ private:
     QGridLayout *parametresLayout;
     QGridLayout *widgetLayout;
 
+    QAction *redactAct;
+    QMenuBar *Menubar;
+    QMenu *Menu;
+
+    //void contextMenuEvent(QContextMenuEvent *event) override;
+
+
+
+
 public slots:
     void on_admitButtonClicked(int row_counter);
     void on_deleteButtonClicked();
-    void birthdaydate_clicked();
+    void redact();
 };
 #endif // MAINWINDOW_H
