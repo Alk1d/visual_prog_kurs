@@ -1,0 +1,20 @@
+{
+	"Cardfile": [
+	{
+	  "name": "Ramil",
+	  "surname": "Umarov",
+	  "lastname": "Ravhadovich",
+	  "birthdate": "23052003",
+	  "height": "174",
+	  "weight": "62"
+	},
+	{
+	  "name": "Egor",
+	  "surname": "Pavlov",
+	  "lastname": "Olegovich",
+	  "birthdate": "11042000",
+	  "height": "182",
+	  "weight": "70"
+	}
+	]
+}

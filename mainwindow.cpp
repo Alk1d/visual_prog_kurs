@@ -7,9 +7,9 @@
 #include <QGridLayout>
 #include <QTableWidget>
 #include <QMenuBar>
-
-
-
+#include <QJsonDocument>
+#include <QMessageBox>
+#include <QStandardItemModel>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -74,20 +74,22 @@ MainWindow::MainWindow(QWidget *parent)
     tableWidget->setHorizontalHeaderLabels(headers);
     tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-
     //buttons
     admitButton = new QPushButton(tr("Add"));
     deleteButton = new QPushButton(tr("Delete selected row"));
 
-    //action
+    //actions
     redactAct = new QAction("Editable table", this);
     redactAct->setCheckable(true);
     redactAct->setChecked(false);
 
+    addDbAct = new QAction("Add JSON data base", this);
     //menu
     Menubar = new QMenuBar;
     Menu = menuBar()->addMenu("Menu");
+    Menu->addAction(addDbAct);
     Menu->addAction(redactAct);
+
 
     //GridLayout for widget
     widgetLayout = new QGridLayout;
@@ -103,6 +105,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(admitButton, &QPushButton::clicked, this, &MainWindow::on_admitButtonClicked);
     connect(deleteButton, &QPushButton::clicked, this, &MainWindow::on_deleteButtonClicked);
     connect(redactAct, &QAction::triggered, this, &MainWindow::redact);
+    connect(addDbAct, &QAction::triggered, this, &MainWindow::on_addDbClicked);
 
 }
 
@@ -125,6 +128,7 @@ void MainWindow::on_admitButtonClicked(int row_counter)
     tableWidget->setItem(row_counter,4,new QTableWidgetItem (heightLineEdit->text()) );
     tableWidget->setItem(row_counter,5,new QTableWidgetItem (weightLineEdit->text()) );
 
+
 }
 
 void MainWindow::on_deleteButtonClicked()
@@ -138,5 +142,38 @@ void MainWindow::redact()
         tableWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
     else
         tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+
+void MainWindow::on_addDbClicked()
+{
+    dbPath = QFileDialog::getOpenFileName(nullptr, "add json file", "D://Qt source/kurs_test", "*.json");
+    file.setFileName(dbPath);
+    if (file.open(QIODevice::ReadOnly|QFile::Text))
+    {
+        db = QJsonDocument::fromJson(QByteArray(file.readAll()), &dbErr);
+        file.close();
+
+        if (dbErr.errorString().toInt() == QJsonParseError::NoError)
+        {
+            QStandardItemModel* model = new QStandardItemModel (nullptr);
+            model->setHorizontalHeaderLabels(QStringList() << "name" << "surname" << "lastname" << "birthdate" << "height" << "weight");
+            dbArr = QJsonValue(db.object().value("Cardfile")).toArray();
+            for (int i = 0; i < dbArr.count(); i++)
+            {
+                QStandardItem* item_col_1 = new QStandardItem(dbArr.at(i).toObject().value("name").toString());
+                QStandardItem* item_col_2 = new QStandardItem(dbArr.at(i).toObject().value("surname").toString());
+                QStandardItem* item_col_3 = new QStandardItem(dbArr.at(i).toObject().value("lastname").toString());
+                QStandardItem* item_col_4 = new QStandardItem(dbArr.at(i).toObject().value("birthdate").toString());
+                QStandardItem* item_col_5 = new QStandardItem(QString::number(dbArr.at(i).toObject().value("height").toInt()));
+                QStandardItem* item_col_6 = new QStandardItem(QString::number(dbArr.at(i).toObject().value("weight").toInt()));
+
+               // model->appendRow(QList<QStandardItem*>() << item_col_1 << item_col_2 << item_col_3 << item_col_4 << item_col_5 << item_col_6);
+            }
+        }
+    }
+    else
+    {
+        QMessageBox::information(nullptr, "kurs", "File is not opened");
+    }
 }
 

@@ -6,12 +6,20 @@
 #include <QPushButton>
 #include <QTableWidget>
 #include "QVBoxLayout"
+#include "qjsondocument.h"
 #include <QLayout>
 #include <QGroupBox>
 #include <QGridLayout>
 #include <QAction>
 #include <QLabel>
 #include <QMenuBar>
+
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QFile>
+#include <QFileDialog>
+#include <QJsonParseError>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -54,11 +62,15 @@ private:
     QGridLayout *widgetLayout;
 
     QAction *redactAct;
+    QAction *addDbAct;
     QMenuBar *Menubar;
     QMenu *Menu;
 
-    //void contextMenuEvent(QContextMenuEvent *event) override;
-
+    QJsonDocument db;
+    QJsonArray dbArr;
+    QJsonParseError dbErr;
+    QString dbPath;
+    QFile file;
 
 
 
@@ -66,5 +78,6 @@ public slots:
     void on_admitButtonClicked(int row_counter);
     void on_deleteButtonClicked();
     void redact();
+    void on_addDbClicked();
 };
 #endif // MAINWINDOW_H
