@@ -78,6 +78,6 @@ public slots:
     void on_admitButtonClicked(int row_counter);
     void on_deleteButtonClicked();
     void redact();
-    void on_addDbClicked();
+    void on_addDbClicked(int row_counter);
 };
 #endif // MAINWINDOW_H
