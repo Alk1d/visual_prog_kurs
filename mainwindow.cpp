@@ -9,6 +9,8 @@
 #include <QMenuBar>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QDir>
+#include <QFile>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -106,6 +108,18 @@ MainWindow::MainWindow(QWidget *parent)
     connect(redactAct, &QAction::triggered, this, &MainWindow::redact);
     connect(addDbAct, &QAction::triggered, this, &MainWindow::on_addDbClicked);
 
+    //creating json file
+    QString path("kurs_test");
+    QDir dir;
+
+    if (!dir.exists(path))
+        dir.mkpath(path);
+
+    QFile file("AppData.json");
+    file.open(QIODevice::ReadWrite);
+    Db_reader(tableWidget->rowCount());
+
+
 }
 
 MainWindow::~MainWindow()
@@ -113,12 +127,67 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::Db_reader(int row_counter)
+{
+    file.setFileName("AppData.json");
+    row_counter = tableWidget->rowCount();
+    if (file.open(QIODevice::ReadOnly))
+    {
+        db = QJsonDocument::fromJson(QByteArray(file.readAll()), &dbErr);
+        file.close();
+
+        if (dbErr.errorString().toInt() == QJsonParseError::NoError)
+        {
+
+            dbArr = QJsonValue(db.object().value("Cardfile")).toArray();
+            for (int i = 0; i < dbArr.count(); i++)
+            {
+
+                if (row_counter <= i) tableWidget->insertRow(tableWidget->rowCount());
+                tableWidget->setItem(i, 0, new QTableWidgetItem (dbArr.at(i).toObject().value("name").toString()));
+                tableWidget->setItem(i, 1, new QTableWidgetItem (dbArr.at(i).toObject().value("surname").toString()));
+                tableWidget->setItem(i, 2, new QTableWidgetItem (dbArr.at(i).toObject().value("lastname").toString()));
+                tableWidget->setItem(i, 3, new QTableWidgetItem (dbArr.at(i).toObject().value("birthdate").toString()));
+                tableWidget->setItem(i, 4, new QTableWidgetItem ((dbArr.at(i).toObject().value("height").toString())));
+                tableWidget->setItem(i, 5, new QTableWidgetItem ((dbArr.at(i).toObject().value("weight").toString())));
+
+            }
+        }
+    }
+    else
+    {
+        QMessageBox::information(nullptr, "Database reader", "File is not opened");
+    }
+}
+
 
 
 void MainWindow::on_admitButtonClicked(int row_counter)
 {
-
     row_counter = tableWidget->rowCount();
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QVariantMap map;
+        map.insert("name", nameLineEdit->text());
+        map.insert("surname", surnameLineEdit->text());
+        map.insert("lastname", lastnameLineEdit->text());
+        map.insert("birthdate", birthdateLineEdit->text());
+        map.insert("height", heightLineEdit->text());
+        map.insert("weight", weightLineEdit->text());
+
+        QJsonObject json = QJsonObject::fromVariantMap(map);
+        QJsonArray WriteDb = db.object().value("Cardfile").toArray();
+        WriteDb.append(json);
+        db.setArray(WriteDb);
+
+        file.write("{\"Cardfile\":" +db.toJson() + "}");
+        file.close();
+    }
+    else
+    {
+        QMessageBox::information(nullptr, "add button", "Appdata file is not opened");
+    }
+
     tableWidget->insertRow(tableWidget->rowCount());
     tableWidget->setItem(row_counter,0,new QTableWidgetItem (nameLineEdit->text()) );
     tableWidget->setItem(row_counter,1,new QTableWidgetItem (surnameLineEdit->text()) );
@@ -126,7 +195,6 @@ void MainWindow::on_admitButtonClicked(int row_counter)
     tableWidget->setItem(row_counter,3,new QTableWidgetItem (birthdateLineEdit->text()) );
     tableWidget->setItem(row_counter,4,new QTableWidgetItem (heightLineEdit->text()) );
     tableWidget->setItem(row_counter,5,new QTableWidgetItem (weightLineEdit->text()) );
-
 
 }
 
@@ -143,39 +211,12 @@ void MainWindow::redact()
         tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-void MainWindow::on_addDbClicked(int row_counter)
+void MainWindow::on_addDbClicked()
 {
-    row_counter = tableWidget->rowCount();
-    dbPath = QFileDialog::getOpenFileName(nullptr, "add json file", "D://Qt source/kurs_test", "*.json");
+    dbPath = QFileDialog::getOpenFileName(nullptr, "add json file", "", "*.json");
     file.setFileName(dbPath);
-    if (file.open(QIODevice::ReadOnly|QFile::Text))
-    {
-        db = QJsonDocument::fromJson(QByteArray(file.readAll()), &dbErr);
-        file.close();
-
-        if (dbErr.errorString().toInt() == QJsonParseError::NoError)
-        {
-          //  QStandardItemModel* model = new QStandardItemModel (nullptr);
-          // model->setHorizontalHeaderLabels(QStringList() << "name" << "surname" << "lastname" << "birthdate" << "height" << "weight");
-            dbArr = QJsonValue(db.object().value("Cardfile")).toArray();
-            for (int i = 0; i < dbArr.count(); i++)
-            {
-
-                if (row_counter < i) tableWidget->insertRow(tableWidget->rowCount());
-                tableWidget->setItem(i, 0, new QTableWidgetItem (dbArr.at(i).toObject().value("name").toString()));
-                tableWidget->setItem(i, 1, new QTableWidgetItem (dbArr.at(i).toObject().value("surname").toString()));
-                tableWidget->setItem(i, 2, new QTableWidgetItem (dbArr.at(i).toObject().value("lastname").toString()));
-                tableWidget->setItem(i, 3, new QTableWidgetItem (dbArr.at(i).toObject().value("birthdate").toString()));
-                tableWidget->setItem(i, 4, new QTableWidgetItem ((dbArr.at(i).toObject().value("height").toString())));
-                tableWidget->setItem(i, 5, new QTableWidgetItem ((dbArr.at(i).toObject().value("weight").toString())));
-
-               // model->appendRow(QList<QStandardItem*>() << item_col_1 << item_col_2 << item_col_3 << item_col_4 << item_col_5 << item_col_6);
-            }
-        }
-    }
-    else
-    {
-        QMessageBox::information(nullptr, "kurs", "File is not opened");
-    }
+    Db_reader(tableWidget->rowCount());
 }
+
+
 
