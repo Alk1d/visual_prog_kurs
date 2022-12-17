@@ -116,8 +116,9 @@ MainWindow::MainWindow(QWidget *parent)
         dir.mkpath(path);
 
     QFile file("AppData.json");
+    dbPath = "AppData.json";
     file.open(QIODevice::ReadWrite);
-    Db_reader(tableWidget->rowCount());
+    Db_reader();
 
 
 }
@@ -127,9 +128,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::Db_reader(int row_counter)
+void MainWindow::Db_reader()
 {
-    file.setFileName("AppData.json");
+    file.setFileName(dbPath);
     row_counter = tableWidget->rowCount();
     if (file.open(QIODevice::ReadOnly))
     {
@@ -162,7 +163,7 @@ void MainWindow::Db_reader(int row_counter)
 
 
 
-void MainWindow::on_admitButtonClicked(int row_counter)
+void MainWindow::on_admitButtonClicked()
 {
     row_counter = tableWidget->rowCount();
     if (file.open(QIODevice::WriteOnly))
@@ -176,7 +177,11 @@ void MainWindow::on_admitButtonClicked(int row_counter)
         map.insert("weight", weightLineEdit->text());
 
         QJsonObject json = QJsonObject::fromVariantMap(map);
-        QJsonArray WriteDb = db.object().value("Cardfile").toArray();
+        QJsonArray WriteDb;
+        if (db.isObject())
+            WriteDb = db.object().value("Cardfile").toArray();
+        else
+            WriteDb = db.array();
         WriteDb.append(json);
         db.setArray(WriteDb);
 
@@ -185,7 +190,8 @@ void MainWindow::on_admitButtonClicked(int row_counter)
     }
     else
     {
-        QMessageBox::information(nullptr, "add button", "Appdata file is not opened");
+        QMessageBox::information(nullptr, "add button", "Database file is not opened");
+        return;
     }
 
     tableWidget->insertRow(tableWidget->rowCount());
@@ -215,7 +221,7 @@ void MainWindow::on_addDbClicked()
 {
     dbPath = QFileDialog::getOpenFileName(nullptr, "add json file", "", "*.json");
     file.setFileName(dbPath);
-    Db_reader(tableWidget->rowCount());
+    Db_reader();
 }
 
 

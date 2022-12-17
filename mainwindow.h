@@ -72,12 +72,13 @@ private:
     QString dbPath;
     QFile file;
 
-    void Db_reader(int row_counter);
+    int row_counter;
+    void Db_reader();
 
 
 
 public slots:
-    void on_admitButtonClicked(int row_counter);
+    void on_admitButtonClicked();
     void on_deleteButtonClicked();
     void redact();
     void on_addDbClicked();
