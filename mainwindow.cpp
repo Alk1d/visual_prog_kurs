@@ -177,11 +177,10 @@ void MainWindow::on_admitButtonClicked()
         map.insert("weight", weightLineEdit->text());
 
         QJsonObject json = QJsonObject::fromVariantMap(map);
-        QJsonArray WriteDb;
         if (db.isObject())
             WriteDb = db.object().value("Cardfile").toArray();
         else
-            WriteDb = db.array();
+        WriteDb = db.array();
         WriteDb.append(json);
         db.setArray(WriteDb);
 
@@ -206,13 +205,32 @@ void MainWindow::on_admitButtonClicked()
 
 void MainWindow::on_deleteButtonClicked()
 {
+    row_counter = tableWidget->currentRow();
+    if (file.open(QIODevice::WriteOnly))
+    {
+        if (db.isObject())
+            WriteDb = db.object().value("Cardfile").toArray();
+        else
+        WriteDb = db.array();
+        WriteDb.removeAt(row_counter);
+        db.setArray(WriteDb);
+        file.write("{\"Cardfile\":" +db.toJson() + "}");
+        file.close();
+    }
+    else
+    {
+        QMessageBox::information(nullptr, "delete button", "Database file is not opened");
+        return;
+    }
     tableWidget->removeRow(tableWidget->currentRow());
 }
 
-void MainWindow::redact()
+void MainWindow::redact() // doesn't add changes to database
 {
     if (redactAct->isChecked() == true)
+    {
         tableWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
+    }
     else
         tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }

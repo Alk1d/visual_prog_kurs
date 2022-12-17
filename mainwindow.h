@@ -68,6 +68,7 @@ private:
 
     QJsonDocument db;
     QJsonArray dbArr;
+    QJsonArray WriteDb;
     QJsonParseError dbErr;
     QString dbPath;
     QFile file;
