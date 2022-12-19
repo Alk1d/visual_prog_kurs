@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QLineEdit>
-#include "QVBoxLayout"
 #include <QLayout>
 #include <QGroupBox>
 #include <QGridLayout>
@@ -11,6 +10,10 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QFile>
+#include <QLabel>
+#include <QAction>
+#include <QPushButton>
+#include <QHeaderView>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -75,6 +78,9 @@ MainWindow::MainWindow(QWidget *parent)
     tableWidget->setHorizontalHeaderLabels(headers);
     tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+    QHeaderView* header = tableWidget->horizontalHeader();
+     header->setSectionResizeMode(QHeaderView::Stretch);
+
     //buttons
     admitButton = new QPushButton(tr("Add"));
     deleteButton = new QPushButton(tr("Delete selected row"));
@@ -102,6 +108,7 @@ MainWindow::MainWindow(QWidget *parent)
     widgetLayout->addWidget(tableWidget, 3, 0, 1, 2);
     Widget->setLayout(widgetLayout);
 
+
     //connectors
     connect(admitButton, &QPushButton::clicked, this, &MainWindow::on_admitButtonClicked);
     connect(deleteButton, &QPushButton::clicked, this, &MainWindow::on_deleteButtonClicked);
@@ -128,7 +135,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::Db_reader()
+void MainWindow::Db_reader() // reading database into table
 {
     file.setFileName(dbPath);
     row_counter = tableWidget->rowCount();
@@ -163,7 +170,7 @@ void MainWindow::Db_reader()
 
 
 
-void MainWindow::on_admitButtonClicked()
+void MainWindow::on_admitButtonClicked() // clicking Add button
 {
     row_counter = tableWidget->rowCount();
     if (file.open(QIODevice::WriteOnly))
@@ -201,9 +208,16 @@ void MainWindow::on_admitButtonClicked()
     tableWidget->setItem(row_counter,4,new QTableWidgetItem (heightLineEdit->text()) );
     tableWidget->setItem(row_counter,5,new QTableWidgetItem (weightLineEdit->text()) );
 
+    nameLineEdit->clear(); // clearing all LineEdits
+    surnameLineEdit->clear();
+    lastnameLineEdit->clear();
+    birthdateLineEdit->clear();
+    heightLineEdit->clear();
+    weightLineEdit->clear();
+
 }
 
-void MainWindow::on_deleteButtonClicked()
+void MainWindow::on_deleteButtonClicked() // clicking Delete selected row
 {
     row_counter = tableWidget->currentRow();
     if (file.open(QIODevice::WriteOnly))
@@ -225,22 +239,26 @@ void MainWindow::on_deleteButtonClicked()
     tableWidget->removeRow(tableWidget->currentRow());
 }
 
-void MainWindow::redact() // doesn't add changes to database
+void MainWindow::redact() // clicking Editable table in Menu, doesn't add changes to database
 {
     if (redactAct->isChecked() == true)
     {
+        QMessageBox::information(nullptr, "Editable table","In this version of program changing the table will NOT change the database");
         tableWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
     }
     else
         tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
 }
 
 void MainWindow::on_addDbClicked()
 {
     dbPath = QFileDialog::getOpenFileName(nullptr, "add json file", "", "*.json");
     file.setFileName(dbPath);
+    if (file.isOpen() == false) return;
+    while (tableWidget->rowCount() > 0) // clearing all rows in tableWidget
+    {
+        tableWidget->removeRow(0);
+    }
     Db_reader();
 }
-
-
-

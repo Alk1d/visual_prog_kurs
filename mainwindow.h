@@ -5,7 +5,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTableWidget>
-#include "QVBoxLayout"
 #include "qjsondocument.h"
 #include <QLayout>
 #include <QGroupBox>
